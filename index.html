@@ -13,9 +13,6 @@
 	'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
 	})(window,document,'script','dataLayer','GTM-MK3NTSFC');</script>
 <!-- End Google Tag Manager -->
-<!-- Freshpaint Maps -->
-<link href="https://freshpaint-hipaa-maps.com/maplibre-gl@3.x/dist/maplibre-gl.css" rel="stylesheet" type="text/css">
-<script src="https://freshpaint-hipaa-maps.com/maplibre-gl@3.x/dist/maplibre-gl.js" type="text/javascript"> </script>
 
   </head>
   <body>
@@ -508,6 +505,125 @@
 
 		<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" id="visual" viewBox="0 0 1440 800" width="1440" height="500" version="1.1" preserveAspectRatio="none"><path d="M0 623L60 599.7C120 576.3 240 529.7 360 505.2C480 480.7 600 478.3 720 495.5C840 512.7 960 549.3 1080 552.8C1200 556.3 1320 526.7 1380 511.8L1440 497L1440 801L1380 801C1320 801 1200 801 1080 801C960 801 840 801 720 801C600 801 480 801 360 801C240 801 120 801 60 801L0 801Z" fill="#D4E7FF" stroke-linecap="round" stroke-linejoin="miter"/></svg>
 		
+		<!-- Freshpaint Maps -->
+		<link href="https://freshpaint-hipaa-maps.com/maplibre-gl@3.x/dist/maplibre-gl.css" rel="stylesheet" type="text/css">
+		<script src="https://freshpaint-hipaa-maps.com/maplibre-gl@3.x/dist/maplibre-gl.js" type="text/javascript"> </script>
+
+		<script type="text/javascript">
+			// Styles affect how the maps look:
+			// We currently support the following styles:
+			//   "standard-light":      colorized, typical map style
+			//   "standard-dark":       colorized, typical dark map style
+			//   "visualization-light": grayscale, elegant black and white style
+			//   "visualization-dark":  grayscale, elegant dark black and white style
+			const style = "standard-light"
+			const envId = "73ca67db-a65c-4f93-b0d6-f79b8d0e7a39"
+		
+			// Create a new instance of the map.
+			const map = new maplibregl.Map({
+			  container: "map",
+			  style: 'https://freshpaint-hipaa-maps.com/${envID/${style}/style-descriptor',
+		
+			  // Latitude and longitude of the map's origin
+			  center: [-121.26963625844148, 44.068235033238295],
+		
+			  // Zoom levels (rough descriptions):
+			  // 15 : a close street view
+			  // 13 : city neighborhoods
+			  // 11 : entire region (Chicagoland)
+			  zoom: 13,
+			});
+		
+			// This adds a toolbar for zooming and panning:
+			// + : zoom in
+			// - : zoom out
+			// compass for rotating (e.g. north facing up or south facing up)
+			map.addControl(new maplibregl.NavigationControl(), "top-left");
+		
+			const markers = [
+			  {
+				"LngLat": [-121.26963625844148, 44.068235033238295],
+				"Header": "St. Charles Bend",
+				"Href": "https://stcharleshealthcare.org/locations/st-charles-bend"
+			  }
+			  
+			]
+		
+			// You can customize popups with arbitrary HTML
+			// Here, we just do a simple header and link to the website
+			const newPopup = (m) => new maplibregl.Popup({ offset: 25 }).setHTML(`
+			<div>
+			  <h4>${m.Header}</h4>
+			  <a href="${m.Href}" title="${m.Href}" rel="nofollow noopener noreferrer" target="_blank">${m.Href}</a>
+			</div>
+		  `);
+		
+			const newLocationCard = (m) => {
+			  const d = document.createElement("article");
+			  d.id = m.Header;
+			  d.className = 'card';
+			  d.innerHTML = `
+			  <header>
+				<h3 class="card-header">${m.Header}</h3>
+			  </header>
+		
+			  <p>Lat, Long = ${m.LngLat}</p>
+			  <p id="${m.Header}-distance" style="visibility:hidden"></p>
+		
+			  <footer>
+				<a href="${m.Href}" title="${m.Href}" rel="nofollow noopener noreferrer" target="_blank">${m.Href}</a>
+			  </footer>
+			`;
+		
+			  return d;
+			}
+		
+			const removeAllPopups = () => {
+			  for (const p of document.getElementsByClassName("maplibregl-popup")) {
+				p.remove();
+			  }
+			}
+		
+			// Iterate over the markers and create location pins with on-click popups
+			markers.forEach((m) => {
+			  console.log("marker: ", m);
+			  const cards = document.querySelector(".cards");
+			  const card = newLocationCard(m);
+			  cards.appendChild(card);
+		
+			  const popup = newPopup(m);
+			  const marker = new maplibregl.Marker({ color: "#808080" })
+				.setLngLat(m.LngLat)
+				.setPopup(popup)
+				.addTo(map);
+		
+			  // Attach on-click handler to the map markers.
+			  // When a user clicks on a marker, this will scroll the cards panel until
+			  // the corresponding card is in view
+			  marker.getElement()
+				.addEventListener('click', (e) => {
+				  card.scrollIntoView({ behavior: 'smooth' });
+				  card.style.background = "#88e9a6";
+				  card.style.transition = "background 0.6s";
+				  setTimeout(function () {
+					card.style.background = "";
+				  }, 1000);
+				});
+		
+			  // Attach on-click handler to the location cards - this
+			  // will center the map on the location the user has clicked.
+			  card.addEventListener('click', (e) => {
+				if ((e.target.nodeName || '').toLowerCase() === 'a') {
+				  return;
+				}
+		
+				removeAllPopups();
+				map.flyTo({ center: m.LngLat });
+				popup.addTo(map);
+			  });
+			});
+		
+		  </script>
 
 		
 		<footer>
